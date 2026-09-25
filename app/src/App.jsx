@@ -113,4 +113,30 @@ function ScreenshotLead() { const [sent, setSent] = useState(false); const [form
 
 function ScreenshotFooter() { const groups = [['Industries', 'BFSI', 'Healthcare', 'Telecom', 'Manufacturing'], ['Resources', 'Blog', 'Guides', 'Newsroom', 'API Documentation', 'Product Documentation'], ['Tools', 'Compress PDF', 'Merge PDF', 'PDF to Image'], ['Capabilities', 'Document Processing', 'Document Interpretation', 'Document Extraction', 'Straight Through Protocol (STP)'], ['Company', 'About', 'Contact', 'Careers']]; return <footer className="shot-footer" id="footer"><div className="shot-footer-inner"><div className="shot-footer-intro"><div className="footer-logo-space" /><p>Shift supply chain and loan compliance from bottleneck to AI-enabled confidence and operational excellence.</p><div className="shot-socials"><span>◎</span><span>✉</span><span>◉</span></div></div><div className="shot-footer-nav"><span>How it works? <i>|</i></span><span>Solutions</span><span>Check All Document Types <i>|</i></span><span>Pricing <i>|</i></span><span>Integrations <i>|</i></span></div><div className="shot-groups">{groups.map(([title, ...links]) => <div key={title}><strong>{title}</strong>{links.map((link, index) => <a className={index === 0 && title === 'Industries' ? 'shot-pill' : ''} href="#footer" key={link}>{link}</a>)}</div>)}</div><div className="shot-newsletter"><h3>Our Newsletter on Latest Trends</h3><input placeholder="Enter your E-mail address" type="email" /><button className="solid-cta">Subscribe <ArrowRight size={16} /></button></div><div className="shot-locations"><div><h3>India <i>|</i> Lorem ipsum</h3><p>City Tower, Sixth Floor, 17, Boat Club Road, Pune,<br />India</p><span>◉ &nbsp;+91 94220 84589 &nbsp;&nbsp;&nbsp; ✉ &nbsp;sales@loremipsum.com</span></div><div><h3>USA <i>|</i> Lorem ipsum</h3><p>Lorem ipsum, Inc. 371 Hoes Lane, Suite 200, Piscataway, NJ<br />08854, USA</p><span>◉ &nbsp;+1 (973) 791-8875 &nbsp;&nbsp;&nbsp; ✉ &nbsp;sales@loremipsum.com</span></div></div><div className="shot-legal"><span>Privacy Policy &nbsp;|&nbsp; Terms &amp; Conditions &nbsp;|&nbsp; Cookie Policy &nbsp;|&nbsp; DPA</span><span>© KlearStack 2026</span></div><div className="shot-watermark">Lorem Ipsum</div></div></footer>; }
 
-export default function App() { return <><Header /><main id="top"><ScreenshotIntegration /><ScreenshotCalculator /><ScreenshotLead /></main><ScreenshotFooter /></>; }
+function IntegratedLead() {
+  const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [calendarUrl, setCalendarUrl] = useState('');
+  const [error, setError] = useState('');
+  const [form, setForm] = useState({ name: '', phone: '', email: '', solution: '', documents: '', message: '', website: '' });
+  const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
+  const submit = async (event) => {
+    event.preventDefault();
+    setError('');
+    setLoading(true);
+    try {
+      const response = await fetch('/api/leads', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || 'We could not send your enquiry. Please try again.');
+      setCalendarUrl(result.calendarUrl || import.meta.env.VITE_CALENDAR_BOOKING_URL || '');
+      setSent(true);
+    } catch (submitError) {
+      setError(submitError.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  return <section className="shot-lead page-width" id="demo"><div className="shot-lead-copy"><Logo /><h2>The Only Document AI<br />With Fraud, Compliance,<br />&amp; Audit Checks Built In</h2><p>No templates. No setup calls. See your documents,<br />processed live, right now.</p><ul><li><Check size={14} /> <b>99%*</b> World Class Accuracy</li><li><Check size={14} /> Proprietary AI for Ultimate Security</li><li><Check size={14} /> <b>Pilot Ready</b> in Less than 7 Hours*</li></ul><div className="shot-clients"><span>Used by Many,<br />Loved by All!</span><b>LANDMARK<br /><small>GROUP</small></b><strong>network<span>›</span></strong><span>ELE<br />TEK</span></div></div><div className="shot-form">{sent ? <div className="shot-success"><Check /><h3>Thank you.</h3><p>Your enquiry was sent successfully.</p>{calendarUrl && <a className="solid-cta" href={calendarUrl} target="_blank" rel="noreferrer">Choose a meeting slot <ArrowRight size={16} /></a>}</div> : <><div className="shot-form-title">Bring your messiest documents.<br />We’ll process them live.</div><form onSubmit={submit}><input required placeholder="Name*" value={form.name} onChange={(e) => update('name', e.target.value)} /><input required placeholder="Contact no.*" value={form.phone} onChange={(e) => update('phone', e.target.value)} /><input required type="email" placeholder="Email ID*" value={form.email} onChange={(e) => update('email', e.target.value)} /><div className="shot-form-two"><select required value={form.solution} onChange={(e) => update('solution', e.target.value)}><option value="">Solution Required*</option><option>Document Processing</option><option>Document Extraction</option></select><select required value={form.documents} onChange={(e) => update('documents', e.target.value)}><option value="">No. of Documents*</option><option>Under 10,000</option><option>10,000+</option></select></div><textarea placeholder="Pain Point and Expectations (optional)" value={form.message} onChange={(e) => update('message', e.target.value)} /><input className="honeypot" tabIndex="-1" autoComplete="off" aria-hidden="true" value={form.website} onChange={(e) => update('website', e.target.value)} /><button className="solid-cta" disabled={loading}>{loading ? 'Sending...' : 'Free Live Demo'} <ArrowRight size={16} /></button>{error && <small className="shot-error">{error}</small>}</form><div className="shot-reviews"><span>★★★★★<small>4.9/5 G2</small></span><i>G2</i><span>★★★★★<small>4.7/5 Trustpilot</small></span><i className="trust">★</i></div><p className="shot-secure">All your data is safe and secure with us!</p></>}</div></section>;
+}
+
+export default function App() { return <><Header /><main id="top"><ScreenshotIntegration /><ScreenshotCalculator /><IntegratedLead /></main><ScreenshotFooter /></>; }
